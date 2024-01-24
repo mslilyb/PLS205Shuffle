@@ -1,0 +1,328 @@
+---
+title: "HW 1"
+output: 
+ html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+Use this R Notebook document to answer the questions and document your work.
+Enter the R code used to answer each question in the corresponding R code chunk.
+Write any textual explanations **outside** of the chunks.
+Attempt to clean up your code as much as possible so that only the necessary lines remain.
+
+When you are done:
+
+1.  Select 'Run All' from the 'Run' dropdown menu.
+2.  Save (File -\> Save)
+3.  Click 'Preview' to bring up the `HW1.nb.html` file. Check through this to make sure it rendered correctly.
+4.  Upload the files: `HW1.nb.html` and `HW1.Rmd` to Canvas.
+
+------------------------------------------------------------------------
+
+# Part 1
+
+1.  Read **Hurlbert 1984** up to the section "Interspersion of treatments" .
+2.  Select a paper reporting the results of an experiment.
+
+-   Choose a paper from **your field** reporting on an experiment relevant to your own research.
+
+-   A good choice might be a recent paper from your own lab (by your PI or previous grad students or postdocs) or from your own research.
+
+-   If you cannot find a paper, come to the TAs or Professor Runcie for suggestions.
+
+    > Morgan, et al. htps://doi.org/10.1038/s41586-018-0828-1
+
+2.  Choose a single experiment from this paper.
+
+-   Many papers report the results of many individual experiments.
+    Choose only one of these.
+
+-   Many papers report on many outcomes from the same experiment (e.g. different response variables).
+    Choose one
+
+-   You should have access to the numeric results of the analysis of the experiment (p-values, F-statistics, confidence intervals, effect estimates), and ideally even the raw data.
+    If results are presented in a figure, you can try to extract these results using a digitization tools like: <https://plotdigitizer.com/>.
+    You don't need to do this yet, but may choose to for the final at the end of the quarter.
+
+-   Briefly describe the experiment.
+    Using the terminology of **Hurlbert 1984**, address:
+
+    -   Is this a mensurative or manipulative experiment?
+
+    -   What was the experimental objective?
+
+    -   How were **sources of confusion (Table 1)** controlled?
+
+    -   What were the results
+
+    -   Aim for 1-2 paragraphs.
+        This doesn't need to be long
+
+    > This was a manipulative experiment.
+    > This experiment sought to determine the potential biological function of excised stable linear introns in S.
+    > cerevisiae by establishing a knockout line of 5 genes that contribute a high amount to the content of excised stable linear introns in saturated growth conditions and comparing their growth and abundance to wild type S.
+    > cerevisiae in a competitive growth environment.
+    > Experiments were performed in batches and biological replicates, which addresses variability and random error.
+    > Control cultures of both the wt and KO strains were grown in the same conditions to both provide a baseline and control for any effects of the treatment itself, as well as time passing.
+    > The experiment found that wt strains had a significant advantage, showing a positive fold change in abundance during sustained growth (n = 10, P = 9.4e-05, 95% confidence interval 0.12 to 0.25, two tailed t-test), whereas the the KO had significant advantage during the period that included re-entry to growth and exit from growth, with the wt's abundance showing a negative fold change in growth (n= 12, P=1e-06, 95% CI -0.74 to -0.46).
+    > This indicates that excised stable linear introns can prove beneficial in some physiological contexts and detrimental in others.
+
+3.  Draw a diagram of the experiment.
+
+-   Label the diagram using the terms we discussed in the first class (Treatment, Experimental Unit, Blocks, Response)
+
+-   Try to show the overall structure of how the experiment was laid out.
+
+The goal of this is to get you thinking about the issues in experimental design, and to help me understand the range of questions students are studying.
+
+To upload your diagram, save it as a file (jpeg, png, etc, but not pdf) in the directory of this .Rmd file.
+Then use the FIGURE/IMAGE button in the toolbar to insert your image.
+
+Here's an example:
+
+![](experimentdiagram.bmp)
+
+**Note:** You can use PowerPoint or a drawing tool to create the diagram on your computer, or you can draw on paper, take a picture with your phone, and then download that file into the folder with this HW1.Rmd file, and change the file name above to the file name of your picture.
+Using the **Visual** format (click the `Visual` button on the top-left of this window), click on the image icon to import and image.
+
+------------------------------------------------------------------------
+
+# Part 2 - R practice
+
+In lab, we ran simulations of an experiment to measure the average length of fish in a pond.
+
+Here, you will do a similar exercise except this time we will also simulate an **experimental manipulation**, (i.e. a treatment) and you will study the treatment's **effect**.
+
+We'll use the example of measuring pulses of people in class with a treatment of sitting vs standing.
+But this time we'll "measure" each person's pulse both sitting and standing.
+
+For the purposes of this simulation, I'll state that the TRUE values for the relevant population parameters are the following:
+
+-   The average pulse of someone sitting is 70bpm
+
+-   The standard deviation of pulses among sitting people is 10bpm
+
+-   The average **effect** of standing is 10bpm
+
+-   The standard deviation of standing effects is 3bpm
+
+## Simulate 1 person
+
+Here is the outline of code to simulate the measurements for one person.
+Fill in the appropriate values by replacing the `___` with numbers.
+
+```{r}
+ave_sitting = 70
+sd_sitting = 10
+ave_standing_effect = 10
+sd_standing_effect = 3
+
+sitting_pulse = rnorm(n=1,mean = ave_sitting, sd = sd_sitting)
+sitting_pulse
+
+standing_effect = rnorm(n=1,mean = ave_standing_effect, sd = sd_standing_effect)
+standing_pulse = sitting_pulse + standing_effect
+standing_pulse
+standing_effect
+```
+
+> Enter the sitting pulse, standing pulse, and standing effect.
+> Include units.]
+
+Sitting Pulse: 68.78457 bpm
+
+Standing Pulse: 77.82868 bpm
+
+Standing Effect: 9.044107 bpm
+
+As an experimenter, it is impossible to **directly observe** the *effect of standing* for this person.
+All you could observe is `sitting_pulse` and `standing_pulse`.
+Show that you can calculate the standing effect for this person from these two values (replace `___` with R code):
+
+```{r}
+calculated_standing_effect = standing_pulse - sitting_pulse
+calculated_standing_effect
+```
+
+> Do you get the same value as above?
+
+Yes.
+But that's just one person, so I would imagine I would.
+
+## Simulate an experiment involving 40 people
+
+Here is the outline of code to simulate the measurements of standing effects for 40 people.
+It uses a **for loop** like in lab.
+Fill in the calculation needed (replace `___` with code) and run the code.
+**Estimate the average standing effect.**
+
+```{r}
+# leave this code here so the simulation is repeatable
+set.seed(1)
+
+# start of your code:
+n_people = 40
+observed_standing_effects = rep(NA,times = n_people)
+
+for(person in 1:n_people) {
+  sitting_pulse = rnorm(n=1,mean = ave_sitting, sd = sd_sitting)
+  standing_effect = rnorm(n=1,mean = ave_standing_effect, sd = sd_standing_effect)
+  standing_pulse = sitting_pulse + standing_effect
+  
+  calculated_standing_effect = standing_pulse - sitting_pulse #Okay, but I feel like I'm doing this wrong. Isn't this just standing_effect? At least on an individual level.
+  observed_standing_effects[person] = calculated_standing_effect
+}
+
+average_effect_estimate = mean(observed_standing_effects)
+average_effect_estimate
+```
+
+> Enter your answer here.
+> Include units
+
+Average effect estimate is 10.07916 BPM
+
+## What is the TRUE error in this estimate?
+
+Use the vector `observed_standing_effects` above, to calculate how much your estimate missed the true value.
+
+```{r}
+true_error = mean(observed_standing_effects) - ave_standing_effect
+true_error
+```
+
+> Enter your answers here.
+> Include units.
+
+True error is 0.07915764 bpm
+
+## Calculate the TRUE standard error based on this experimental design and the TRUE population parameters above
+
+```{r}
+# Enter your code here
+true_se = sqrt((sd_standing_effect**2 + var(observed_standing_effects)) / n_people)
+true_se
+```
+
+> Enter your answers here.
+> Include units.
+
+True standard error = 0.6596864 bpm
+
+## Simulation 100 replicate experiments with the same size and parameters above, and record the estimated standing effect from each experiment
+
+The following code takes the single experiment with 40 people above, and uses a **second for loop** to repeat it 100 times.
+Fill in the code from your answers above to complete so that it estimates the treatment effect for each person, and then calculates the average observed treatment effect.
+
+Calculate the **mean** and **standard deviation** of the treatment effect estimates across the 100 experiments.
+Compare these values to the values that you expect.
+
+```{r}
+set.seed(1)
+
+n_experiments = 100
+replicate_estimates = rep(NA,times = n_experiments)
+
+for(expt in 1:100) {
+  # code for each individual experiment:
+  n_people = 40
+  observed_standing_effects = rep(NA,times = n_people)
+  
+  for(person in 1:n_people) {
+    sitting_pulse = rnorm(n=1,mean = ave_sitting, sd = sd_sitting)
+    standing_effect = rnorm(n=1,mean = ave_standing_effect, sd = sd_standing_effect)
+    standing_pulse = sitting_pulse + standing_effect
+    
+    calculated_standing_effect = standing_pulse - sitting_pulse
+    observed_standing_effects[person] = calculated_standing_effect
+  }
+  
+  # calculate the estimated mean treatment effect for this experiment
+  current_experiment_estimate = mean(observed_standing_effects)
+  
+  # save that estimate in the vector of results
+  replicate_estimates[expt] = current_experiment_estimate
+}
+
+mean(replicate_estimates)
+sd(replicate_estimates)
+```
+
+> Enter your answers here.
+> Include units.
+
+Mean treatment effect is 10.03964 bpm Standard deviation is 0.451245 bpm
+
+## Compare to an experiment that measured DIFFERENT PEOPLE for the two treatments
+
+The following code modifies the experimental design to be more similar to what we did in class.
+We select 40 people to observe sitting, and 40 DIFFERENT people to observe standing.
+We calculate the average pulses of the people sitting, and the average pulses of the people standing.
+We then take the difference between these two as our estimate of the standing effect.
+This **full experiment** is replicated 100 times so that we can compare it's efficiency to the previous experiment.
+
+Report the **mean** and **standard deviation** of the treatment effect estimates across the 100 experiments.
+Compare these values to the previous experimental design above
+
+```{r}
+set.seed(1)
+
+n_experiments = 100
+replicate_estimates = rep(NA,times = n_experiments)
+
+for(expt in 1:100) {
+  # code for each individual experiment:
+  
+  # first observe 40 people sitting
+  n_people = 40
+  observed_sitting_pulses = rep(NA,times = n_people)
+  
+  for(person in 1:n_people) {
+    sitting_pulse = rnorm(n=1,mean = ave_sitting, sd = sd_sitting)
+    observed_sitting_pulses[person] = sitting_pulse
+  }
+  
+  # Then observe 40 people standing
+  n_people = 40
+  observed_standing_pulses = rep(NA,times = n_people)
+  
+  for(person in 1:n_people) {
+    sitting_pulse = rnorm(n=1,mean = ave_sitting, sd = sd_sitting)
+    standing_effect = rnorm(n=1,mean = ave_standing_effect, sd = sd_standing_effect)
+    standing_pulse = sitting_pulse + standing_effect
+    observed_standing_pulses[person] = standing_pulse
+  }
+  
+  # Then calculate the two averages
+  average_sitting_pulse = mean(observed_sitting_pulses)
+  average_standing_pulse = mean(observed_standing_pulses)
+  
+  # Then get our estimate of the standing effect
+  current_experiment_estimate = average_standing_pulse - average_sitting_pulse
+  
+  # save that estimate in the vector of results
+  replicate_estimates[expt] = current_experiment_estimate
+}
+
+mean(replicate_estimates)
+sd(replicate_estimates)
+```
+
+> Enter your answers here.
+> Include units.
+
+Mean treatment effect is 10.20996 bpm Standard deviation of Treatment Effect is 2.115401 bpm
+
+## Discuss experimental design issues that might impact the VALIDITY of the two designs
+
+Focus on issues that might affect the scientific interpretation of the results.
+
+> The first one that comes to mind is in the heterogeneity in the population, especially in the second case.
+> Measuring the standing and sitting pulses of two distinct populations leaves room for biological differences between the two of the groups to influence the results.
+> Furthermore, there were no controls described in the experiment, which for the first would be a replication where the treatment group didn't stand.
+> This all comes together to make it difficult to definitively quantify the effect of standing on a person's pulse with any sense of scope, since there exists no established baseline and the second experiment is open to a great deal of error in population differences.
