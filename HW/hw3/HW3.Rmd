@@ -1,0 +1,104 @@
+---
+title: "HW3"
+output: 
+ html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+Use this R Notebook document to answer the questions and document your work.
+Enter the R code used to answer each question in the corresponding R code chunk.
+Write any textual explanations **outside** of the chunks.
+When we grade, we will *hide* the code and just look at the R output and your written answers.
+Attempt to clean up your code as much as possible so that only the necessary lines remain.
+
+When you are done:
+
+1.  Select 'Run All' from the 'Run' dropdown menue.
+2.  Save (File -\> Save)
+3.  Click 'Preview' to bring up the `HW1.nb.html` file. Check through this to make sure it rendered correctly.
+4.  Upload the `HW1.nb.html` to Canvas.
+
+------------------------------------------------------------------------
+
+# Question 1
+
+In lab, we analyzed an experiment with subsamples.
+Multiple soil samples were taken per plot and the response was percent-Nitrogen.
+In class when we discussed experiments like this, we described the analysis as:
+
+1.  First estimate the value of each EU
+2.  Then, average these estimates to get an estimated mean for each treatment level
+3.  Then compare these means to estimate the treatment effect and its standard error
+
+However, the analysis of the data outlined in the lab did not directly go through this procedure.
+We simply wrote the full Design Table, then entered the appropriate model into the `lmer()` function and did our analysis.
+
+It turns out that in a balanced experiment where every experimental unit has the same number of subsamples, you will get *exactly* the same answers if you first average the subsamples into a single mean response per plot, and then analyze the averaged data.
+
+In this question, I want you to repeat the analyses presented in Lab3 after first averaging the subsamples per plot.
+
+The following code loads the Sample-level data from lab and averages the Samples per Plot:
+
+```{r}
+clover <- read.csv('Clover_data.csv')
+clover_means <- aggregate(NLevel ~ Plot + Spray,clover,FUN = mean)
+str(clover_means)
+```
+
+## Explain why the soil samples are subsamples, not experimental units
+
+> Enter your response here.
+
+## Provide a new design table for the averaged data
+
+**Design**: Completely randomized design
+
+| Structure | Variable | Type | \# levels | Replication | Experimental Unit |
+|-----------|----------|------|-----------|-------------|-------------------|
+| Treatment |          |      |           |             |                   |
+| Design    |          |      |           |             |                   |
+| Response  |          |      |           |             |                   |
+
+## Write the model for the averaged data and fit it with the appropriate model function
+
+```{r}
+
+```
+
+## Show appropriate diagnostic plots and assess whether the data satisfy the model assumptions
+
+Compare the plots to those generated in lab.
+
+```{r}
+```
+
+> Enter your response here
+
+## Provide a 95% confidence interval for the effect of the spray.
+
+Compare your results to the results from the full data in R.
+
+```{r}
+
+```
+
+> Enter your response here
+
+------------------------------------------------------------------------
+
+## One curious feature of this experiment was that the number of EU per treatment was not the same. There were 5 EU in the Rhizobia treatment but only 4 EU in Mock treatment.
+
+Is this the best way to have allocated the 9 EU to the treatments?
+
+1)  Say that they had allocated 5 EU to the Mock and 4 to the Rhizobia treatment. Would the estimates of the two treatment means have had the same standard error as each other? Would the standard error of the treatment effect have been the same? Note, I am referring to the TRUE standard error, NOT the SED. Include equations for the standard error of each mean.
+
+> Enter your response here
+
+2)  Say that they had wanted to keep the two treatments with the same level of replication so only used 4 EU for the Rhizobia treatment. What would the degrees of freedom be? How would this affect a confidence interval?
+
+> Enter your response here
