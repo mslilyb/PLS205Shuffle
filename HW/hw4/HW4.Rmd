@@ -1,0 +1,158 @@
+---
+title: "HW4"
+output: 
+ html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+Necessary libraries
+
+```{r echo = F}
+library(ggplot2)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(multcomp)
+library(PLS205)
+```
+
+To study the effect of burial time on germination and dormancy of
+*Hordeum murinum ssp. leporinum* (Hare Barley), overwintering seeds were
+placed in bags in a field, and then removed and tested at six time
+intervals (0, 30, 60, 90, 180, and 360 days after burial). The design
+was a completely randomized design, with 5 replicate bags per burial
+time. Each bag contained 200 seeds. At the designed time, each bag was
+opened, and then the seeds were split evenly between two germination
+trays, and the number of germinating seeds was measured in each tray.
+Two new trays were used for each of the bags.
+
+```{r echo = FALSE}
+# Ensure the data file is in the same directory as this document
+germinant_data = read.csv('Germination.csv')
+str(germinant_data)
+```
+
+## 1 Create a design table for this experiment
+
+Explain your choice of experimental unit
+
+| Structure | Variable | Type | \# levels | Replication | Experimental Unit |
+|-----------|----------|------|-----------|-------------|-------------------|
+|           |          |      |           |             |                   |
+|           |          |      |           |             |                   |
+|           |          |      |           |             |                   |
+|           |          |      |           |             |                   |
+
+> ENTER YOUR RESPONSE HERE
+
+## 2 Use a boxplot to visualize the dose-response curve (ie the number of Germinants observed each Day).
+
+Does there appear to be an effect of age (Date) on number of germinating
+seeds?
+
+> **Note** For visualization, refer back to the visualization techniques
+> in Lab3 when there were subsamples. You should be able to use the same
+> code, just be sure to change all the variable names to match the new
+> dataset. Be sure to make the variable `Days` into a factor as in Lab4.
+
+```{r}
+library(ggplot2)
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+## 3 Assess whether the linear model assumptions are satisfied by the data.
+
+Treat **Days** as a factor. Use diagnostic plots.
+
+> **Note** Here again, refer to Lab 3 for appropriate diagnostic plots.
+> Again, the same code should work as long as you are careful to change
+> all variable names
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+## 4 Test (provide p-values as evidence) if any of the extended germination times changed germination rated relative to zero days
+
+> **Note** Refer to Lab3 for correct usage of `emmeans()` with `lmer()`
+> models.
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+## 5 Repeat the analysis above, except describing which pairs of "lengths of time" caused significantly different germination rates (use α=0.05).
+
+> Note: In an actual analysis, you would either do the analysis in #4 or
+> #5, but not both.
+
+Produce a table with groups of treatment levels that cannot be
+significantly distinguished with this α.
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+## 6 Using the analyses in #4 and #5, extract confidence intervals from each analysis for all treatment contrasts.
+
+For estimates reported in both analyses: Are the estimates the same? Are
+the lengths of the confidence interval the same? Provide an explanation
+for why the confidence intervals from one analyses were longer even
+though the data and model were the same for both analyses.
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+## 7 Use an ANOVA to assess the evidence for any effect of time germination rate
+
+Is there strong evidence for a difference in germination rate by seed
+age?
+
+> **Note**. The ANOVA table produced by the `lmer()` function looks a
+> bit different from that of the `lm()` function. But all the same
+> information is there, and it should be clear how to interpret. `DenDF`
+> is the degrees of freedom of the denominator of the F-value. `NumDF`
+> is the degrees of freedom of the numerator of the F-value. These are
+> used with the `F-value` to calculate the p-value (`Pr(>F)`) using the
+> `pf()` function.
+>
+> You should add the argument `ddf = 'Kenward-Roger'` (or abbreviation
+> `ddf='K'` whenever you do `anova()` with a `lmer()` model
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+## 8 Create the "full" ANOVA table "by-hand" based on R's ANOVA table above
+
+Note: The `Sum Sq` and `Mean Sq` values will be different from R's table
+
+Hint: Start with the `F-value` from above. You can calculate `MSE` from
+the `emmeans` table of Treatment effects in Question 4.
+
+```{r}
+# Include R code for calculating the SumSq, MeanSq and p-value here
+```
+
+| Source   | Df  | Sum Sq | Mean Sq | F-value | p-value |
+|----------|-----|--------|---------|---------|---------|
+| Days     |     |        |         |         |         |
+| Residual |     |        |         |         |         |
