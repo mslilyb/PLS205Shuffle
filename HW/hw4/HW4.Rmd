@@ -34,6 +34,9 @@ Two new trays were used for each of the bags.
 ```{r echo = FALSE}
 # Ensure the data file is in the same directory as this document
 germinant_data = read.csv('Germination.csv')
+germinant_data$Bag = as.factor(germinant_data$Bag)
+germinant_data$Tray = as.factor(germinant_data$Tray)
+germinant_data$Days = as.factor(germinant_data$Days)
 str(germinant_data)
 ```
 
@@ -41,14 +44,22 @@ str(germinant_data)
 
 Explain your choice of experimental unit
 
-| Structure | Variable | Type | \# levels | Replication | Experimental Unit |
-|-----------|----------|------|-----------|-------------|-------------------|
-|           |          |      |           |             |                   |
-|           |          |      |           |             |                   |
-|           |          |      |           |             |                   |
-|           |          |      |           |             |                   |
+| Structure | Variable   | Type        | \# levels | Replication | Experimental Unit |
+|------------|------------|------------|------------|------------|-------------|
+| Treatment | Days       | Categorical | 6         | None        | Bag               |
+| Design    | Bag        | Categorical | 30        |             |                   |
+|           | Tray       | Categorical | 2         |             |                   |
+| Response  | Germinants | Numeric     | 60        |             |                   |
 
-> ENTER YOUR RESPONSE HERE
+> I figured that the bag is the experimental unit. Each set of 5 bags
+> corresponds to a single treatment level, but they are not considered
+> 'replicates' or 'subsamples', because they are neither subjected to
+> each treatment level or part of a larger population respectively. It
+> is analagous to an experiment where there was 5 people of the same age
+> at each of some number of levels. The people between ages would not be
+> replicates. The trays *are* subsamples of the bags and not the
+> experimental unit either; they do not receive the treatments
+> independently of each other.
 
 ## 2 Use a boxplot to visualize the dose-response curve (ie the number of Germinants observed each Day).
 
@@ -62,10 +73,13 @@ seeds?
 
 ```{r}
 library(ggplot2)
-
+ggplot(germinant_data,aes(x=Days,y=Germinants)) + 
+  geom_boxplot()
 ```
 
-> ENTER YOUR RESPONSE HERE
+> There appears to be some effect of age on the number of germinants; it
+> appears as if the number of germinants trends downward as the seeds
+> get older.
 
 ## 3 Assess whether the linear model assumptions are satisfied by the data.
 
@@ -76,10 +90,16 @@ Treat **Days** as a factor. Use diagnostic plots.
 > all variable names
 
 ```{r}
-
+germodel <- lmer(Germinants~Days + (1|Bag), data = germinant_data)
+germodel
+pls205_diagnostics(germodel)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Our normality assumption seems to be fine but our variances are all
+> over the place. The trend line doesn't completely go off the rails,
+> but the hump in the middle means some of ours are a little higher than
+> others. It's still probably fine to go forward, but it's cause for
+> concern.
 
 ## 4 Test (provide p-values as evidence) if any of the extended germination times changed germination rated relative to zero days
 
@@ -87,10 +107,15 @@ Treat **Days** as a factor. Use diagnostic plots.
 > models.
 
 ```{r}
+meanger = emmeans(germodel, specs = 'Days', lmer.df = 'k')
 
+evsc_mger <- contrast(meanger, method = 'trt.vs.ctrl',ref =1)
+pvals = summary(evsc_mger, infer = c(F,T))
+pvals
 ```
 
-> ENTER YOUR RESPONSE HERE
+> It appears as if for any amount of days over 30, there's a significant
+> difference in germination rates with a = 0.05
 
 ## 5 Repeat the analysis above, except describing which pairs of "lengths of time" caused significantly different germination rates (use α=0.05).
 
@@ -101,10 +126,16 @@ Produce a table with groups of treatment levels that cannot be
 significantly distinguished with this α.
 
 ```{r}
+diff_mger <- contrast(meanger, method = 'pairwise')
+summeanger = summary(diff_mger, infer = c(F,T))
+completdisp = cld(meanger,alpha=0.05,Letters=letters)
+completdisp
 
 ```
 
-> ENTER YOUR RESPONSE HERE
+> There's three groups, a, b, and c. b and c have overlap at 30 days,
+> which makes the comparison between them a little muddy, but a is
+> significantly different from both b and c.
 
 ## 6 Using the analyses in #4 and #5, extract confidence intervals from each analysis for all treatment contrasts.
 
@@ -114,10 +145,20 @@ for why the confidence intervals from one analyses were longer even
 though the data and model were the same for both analyses.
 
 ```{r}
-
+CIevsc = summary(evsc_mger, infer = c(T,F))
+CIdiff = summary(diff_mger, infer = c(T,F))
+CIevsc
+CIdiff
 ```
 
-> ENTER YOUR RESPONSE HERE
+> It looks like each estimate reported in both had the same values
+> across the board, but the confidence intervals for the pairwise
+> analysis are bigger. In general, pairwise comparisons (i.e., multiple
+> comparisons) tend to have larger confidence intervals; if each
+> comparison has an alpha of 0.05, the chance of *at least* one false
+> positive is additive across all the treatments. In essence, picking
+> top effects/different effects/grouping requires all of our CIs to be
+> valid, which lessens our confidence in the effect sizes.
 
 ## 7 Use an ANOVA to assess the evidence for any effect of time germination rate
 
@@ -136,7 +177,8 @@ age?
 > `ddf='K'` whenever you do `anova()` with a `lmer()` model
 
 ```{r}
-
+anova_table = anova(germodel, ddf = 'K')
+anova_table
 ```
 
 > ENTER YOUR RESPONSE HERE
@@ -150,9 +192,30 @@ the `emmeans` table of Treatment effects in Question 4.
 
 ```{r}
 # Include R code for calculating the SumSq, MeanSq and p-value here
+bagnum = 5
+treatments = 6
+traycount = 2
+bags_tot = bagnum * treatments
+dfE = treatments * (bagnum - 1)
+dfT = treatments - 1
+fval = 37.678
+meanger
+# if SE = 3.64, that means that SE * n**2 = stdev, squared = variance, and so on...
+SE = 3.64
+variance = (SE * (bagnum * traycount)**0.5)**2 #all the same, it would seem, since the number of samples is the same across all of them.
+SSE = (variance * (bagnum)) * treatments
+MSE = SSE / dfE
+SSE
+MSE
+MST = fval * MSE
+MST
+sumsq = MST * dfT
+sumsq
+pv = pf(fval,dfT,dfE,lower.tail=F)
+pv
 ```
 
-| Source   | Df  | Sum Sq | Mean Sq | F-value | p-value |
-|----------|-----|--------|---------|---------|---------|
-| Days     |     |        |         |         |         |
-| Residual |     |        |         |         |         |
+| Source   | Df  | Sum Sq   | Mean Sq  | F-value | p-value      |
+|----------|-----|----------|----------|---------|--------------|
+| Days     | 5   | 15600.58 | 3120.115 | 37.678  | 1.332515e-10 |
+| Residual | 24  | 1987.44  | 82.81    |         |              |
