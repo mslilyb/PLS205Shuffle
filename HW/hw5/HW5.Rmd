@@ -1,0 +1,164 @@
+---
+title: "HW5"
+output: 
+ html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: 72
+  chunk_output_type: inline
+---
+
+**Note:** Before submitting your document, re-run all your R code chunks
+by clicking the down-arrow next to "Run" in the document's menu bar and
+selecting "**Restart R and Run All Chunks**". Then click "Preview" and
+go through each answer to make sure the R code and any associated output
+is provided.
+
+Necessary libraries
+
+```{r echo = F,message=FALSE}
+library(ggplot2)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(PLS205)
+library(multcomp)
+```
+
+An experiment was run to examine the combined effects of Exercise
+regimes on weight loss in dogs. They hypothesized that this may depend
+on diet, so used a factorial experimental design. The experiment used
+four commercial dog foods (Food_A - Food_D) and three exercise regimes
+(WALK: daily walking, LOW: 30 min run 2x/week, HIGH: 30 min run 6 days
+per week). They recruited 96 dogs from a nearby vet clinic and assigned
+each to one of the 4 food brands and one of the 3 exercise regimes.
+Weights were collected at the beginning of the experiment and after 3
+months. Responses were recorded as % change in weight after 3 months for
+each dog.
+
+Here are the data:
+
+```{r}
+dog_data = read.csv('dog_data.csv')
+str(dog_data)
+```
+
+### 1.1
+
+**Create the Design table for this experiment. Use `Exercise` as the
+focal treatment. Explain your choices for EU and Replicate.**
+
+| Structure     | Variable | Type | #levels | Replicate | EU  |
+|---------------|----------|------|---------|-----------|-----|
+| Focal Trt     |          |      |         |           |     |
+| Moderator Trt |          |      |         |           |     |
+| Combo Trt     |          |      |         |           |     |
+| Design        |          |      |         |           |     |
+| Response      |          |      |         |           |     |
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.2
+
+**Does the data.frame need to be updated to match the design table? If
+so, make necessary changes:**
+
+```{r}
+
+```
+
+### 1.3
+
+**Make a plot of the data, separating by focal and moderator variables
+as done in lab.**
+
+**1) Does it look like the different exercise regimes affected weight
+loss differently?** Is this a question about main, specific, or
+interaction effects?
+
+**2) Does the differences among exercise regimes seem to change between
+the foods?** Is this a question about main, specific, or interaction
+effects?
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.4
+
+Write a linear model to estimate **specific effects** of exercise at
+each level of food.
+
+```{r}
+
+```
+
+### 1.5
+
+**Compare the 3 exercise regimes for each type of food. Use
+`contrasts()` to make a table of `trt.vs.ctrl` comparisons for each type
+of food, using `WALK` as the control regime. Produce confidence
+intervals such that the chance that ANY of the confidence intervals do
+not include the true value is less than 5%.**
+
+**Can you conclude that there are different effects of any of these 3
+exercise regimes on weight gain using any of the 4 foods? Use**
+$\alpha = 0.05$**.**
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.6
+
+**Answer the similar question using an ANOVA. Can you conclude that
+there are different effects among any of these 3 exercise regimes on
+weight gain using any of the 4 foods? Use** $\alpha = 0.05$**. What is
+the difference between this question and the one in 1.5?**
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.7
+
+**Did effects of changing to either HIGH or LOW exercise change among
+diets?**
+
+**Calculate interaction effects for the HIGH-WALK and LOW-WALK contrasts
+across foods. Use `pairwise` contrasts for each contrast class among
+foods, and adjust your confidence intervals for the number of contrast
+classes.** **Use** $\alpha = 0.05$.
+
+**Use the CLD function to group the contrasts for each food into groups
+that cannot be distinguished. Again, adjust the confidence level fo the
+number of contrast classes.**
+
+Write a complete statement describing a significant interaction contrast
+that you observe.
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.8
+
+**Repeat the last question using ANOVA. Compare the minimum p-value for
+the pairwise interaction contrasts and the p-value from the ANOVA.**
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
