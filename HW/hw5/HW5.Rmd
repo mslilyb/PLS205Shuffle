@@ -51,15 +51,17 @@ str(dog_data)
 **Create the Design table for this experiment. Use `Exercise` as the
 focal treatment. Explain your choices for EU and Replicate.**
 
-| Structure     | Variable | Type | #levels | Replicate | EU  |
-|---------------|----------|------|---------|-----------|-----|
-| Focal Trt     |          |      |         |           |     |
-| Moderator Trt |          |      |         |           |     |
-| Combo Trt     |          |      |         |           |     |
-| Design        |          |      |         |           |     |
-| Response      |          |      |         |           |     |
+| Structure     | Variable            | Type | #levels | Replicate | EU  |
+|---------------|---------------------|------|---------|-----------|-----|
+| Focal Trt     | Excercise           | Cat  | 3       | Food      | Dog |
+| Moderator Trt | Food                | Cat  | 4       | None      | Dog |
+| Combo Trt     | Excercise:Food      | Cat  | 12      | None      | Dog |
+| Design        | Dog                 | Cat  | 96      |           |     |
+| Response      | \% Change in Weight | Num  | 96      |           |     |
 
-> ENTER YOUR RESPONSE HERE
+> The EU is certainly `Dog`, since that is the only part of the
+> experiment that receives a single level of treatment. Food receives
+> multiple levels, and exercise is the treatment.
 
 ### 1.2
 
@@ -67,7 +69,8 @@ focal treatment. Explain your choices for EU and Replicate.**
 so, make necessary changes:**
 
 ```{r}
-
+#Dogs certainly are not numbers
+dog_data$Dog = as.factor(dog_data$Dog)
 ```
 
 ### 1.3
@@ -84,7 +87,8 @@ the foods?** Is this a question about main, specific, or interaction
 effects?
 
 ```{r}
-
+ggplot(dog_data,aes(x=Exercise,y=percent_change)) + 
+  geom_boxplot(aes(group = interaction(Exercise,Food),color = Food))
 ```
 
 > ENTER YOUR RESPONSE HERE
