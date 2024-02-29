@@ -91,7 +91,16 @@ ggplot(dog_data,aes(x=Exercise,y=percent_change)) +
   geom_boxplot(aes(group = interaction(Exercise,Food),color = Food))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> 1.  It does. If it did not, we would expect the box plots to look more
+>     alike each other, but there are definitely differences between the
+>     three regimes. This is a question about the main effect, since
+>     it's not looking at any particular comparison or single effect.
+> 2.  Yes they do. While some foods have very different results across
+>     different regimes, others have much less obvious differences, like
+>     Food_D which looks similar across the board. This is a question
+>     about interactions, comparing the combination of exercise and food
+>     across different treatment levels, as opposed to specifically
+>     percent change in a single Exercise:Food.
 
 ### 1.4
 
