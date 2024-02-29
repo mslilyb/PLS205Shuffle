@@ -53,7 +53,7 @@ focal treatment. Explain your choices for EU and Replicate.**
 
 | Structure     | Variable            | Type | #levels | Replicate | EU  |
 |---------------|---------------------|------|---------|-----------|-----|
-| Focal Trt     | Excercise           | Cat  | 3       | Food      | Dog |
+| Focal Trt     | Exercise            | Cat  | 3       | Food      | Dog |
 | Moderator Trt | Food                | Cat  | 4       | None      | Dog |
 | Combo Trt     | Excercise:Food      | Cat  | 12      | None      | Dog |
 | Design        | Dog                 | Cat  | 96      |           |     |
@@ -108,7 +108,9 @@ Write a linear model to estimate **specific effects** of exercise at
 each level of food.
 
 ```{r}
+#So need to drop the focal treatment... if I understand correctly. Use lm(), given no random terms in the model...
 
+speceffectmod <- lm(percent_change ~ Food + Food:Exercise, data = dog_data)
 ```
 
 ### 1.5
