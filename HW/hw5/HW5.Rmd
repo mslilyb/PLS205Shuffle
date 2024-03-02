@@ -93,8 +93,9 @@ ggplot(dog_data,aes(x=Exercise,y=percent_change)) +
 
 > 1.  It does. If it did not, we would expect the box plots to look more
 >     alike each other, but there are definitely differences between the
->     three regimes. This is a question about the main effect, since
->     it's not looking at any particular comparison or single effect.
+>     three regimes. This is a question about the interaction effects,
+>     since we are comparing the response variables of two treatments to
+>     see if there is a difference.
 > 2.  Yes they do. While some foods have very different results across
 >     different regimes, others have much less obvious differences, like
 >     Food_D which looks similar across the board. This is a question
@@ -126,10 +127,17 @@ exercise regimes on weight gain using any of the 4 foods? Use**
 $\alpha = 0.05$**.**
 
 ```{r}
+meanspec_food = emmeans(speceffectmod, specs = 'Exercise', by = 'Food')
 
+exereffect = contrast(meanspec_food, method = 'trt.vs.ctrl', ref = 'WALK', name = 'Exercise_effect')
+a = 0.05
+k = 8 #there's four Foods and two hypotheses for each food, so 8
+level = 1-a/k
+print(summary(exereffect, infer = c(T,T), level = level))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Yes! We can conclude that there are differences for HIGH exercise for
+> at least two foods, Food_A and Food_B.
 
 ### 1.6
 
@@ -139,10 +147,15 @@ weight gain using any of the 4 foods? Use** $\alpha = 0.05$**. What is
 the difference between this question and the one in 1.5?**
 
 ```{r}
-
+anovaspec = anova(speceffectmod)
+print(anovaspec)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Yes, we can! With `a = 0.05`, we can see that `Food:Exercise` has a
+> p-value below it, so we know that the exercise regimes differ for at
+> least one food type. This question doesn't indicate which of the
+> regimes may be different, just that one is (so it doesn't test each
+> specific effect).
 
 ### 1.7
 
@@ -162,10 +175,26 @@ Write a complete statement describing a significant interaction contrast
 that you observe.
 
 ```{r}
+inter_effect_mod <- lm(percent_change ~ Exercise + Food + Exercise:Food, data = dog_data)
+#so we do spec effects again
+meanspec_food_i = emmeans(inter_effect_mod, specs = 'Exercise', by = 'Food')
 
+exereffect_i = contrast(meanspec_food_i, method = 'trt.vs.ctrl', ref = 'WALK', name = 'Exercise_effect')
+
+regroup_exce = update(exereffect_i, by = 'Exercise_effect', adjust = 'none')
+pairin_evsc = contrast(regroup_exce, method = 'pairwise', name = 'Food_effect_on_Exercise_effects_pairwise')
+
+print(summary(pairin_evsc, infer = c(T,T), level = 1-a/6))
+
+comdis = cld(pairin_evsc, alpha = 1-a/6, Letters = letters)
+comdis
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Of all the contrasts, only two have p values that are below our chosen
+> alpha, and they are both in the HIGH-WALK contrast and are when
+> switching from Food A or B to D. We are unable to establish any
+> difference between the effect of A to D or B to D, however the two are
+> different from all other estimates in HIGH-WALK.
 
 ### 1.8
 
@@ -173,7 +202,10 @@ that you observe.
 the pairwise interaction contrasts and the p-value from the ANOVA.**
 
 ```{r}
-
+print(anova(inter_effect_mod))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> The p-value from the anova analysis most closely matches the average
+> of the two p values for A to D and B to D for HIGH-WALK. They're
+> similar, relatively, and the p-value for the anova splits the
+> difference between the two.
