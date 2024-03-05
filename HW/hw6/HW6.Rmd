@@ -1,0 +1,119 @@
+---
+title: "HW6"
+output: 
+ html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+Use this R Notebook document to answer the questions and document your work.
+Enter the R code used to answer each question in the corresponding R code chunk.
+Write any textual explanations **outside** of the chunks.
+When we grade, we will *hide* the code and just look at the R output and your written answers.
+Attempt to clean up your code as much as possible so that only the necessary lines remain.
+
+When you are done:
+
+1.  Select '**Restart R and Run All Chunks**' from the 'Run' dropdown menue.
+2.  Save (File -\> Save)
+3.  Click 'Preview' to bring up the `HW6.nb.html` file. Check through this to make sure it rendered correctly.
+4.  Upload the `HW6.nb.html` to Canvas.
+
+Necessary libraries
+
+```{r echo = F,message=FALSE, warning=FALSE}
+# Necessary packages 
+library(ggplot2) 
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(PLS205)
+```
+
+## Question 1
+
+A researcher was interested in examining the effect of pasture species composition on beta-carotene content in eggs of pastured poultry.
+She evenly divided each of four fields into five sections and overseeded each section with one of the following: 1) annual rye (grass); 2) fescue (grass); 3) white clover (legume); 4) vetch (legume); or, 5) clover/fescue mix.
+A separate flock of 10 birds was put out in each section.
+After one-week, eggs from each flock were collected daily and combined for determining beta-carotene content of the yolks.
+These values in $\mu_g/g$ were averaged after 10 days.
+
+```{r echo=FALSE}
+data_1 = read.csv('egg_carotene.csv')
+data_1$Section = as.factor(data_1$Section)
+str(data_1)
+```
+
+### 1.1 Describe the design of this experiment in detail.
+
+**Design**: **Response**:
+
+| Structure | Variable      | Type        | \# levels | Blocks | EU      |
+|-----------|---------------|-------------|-----------|--------|---------|
+| Treatment | Species       | Categorical | 5         | Block  | Section |
+| Design    | Block         | Categorical | 4         |        |         |
+|           | Species:Block | Categorical | 20        |        |         |
+|           | Section       | Categorical | 20        |        |         |
+| Response  | Beta          | Numerical   | 20        |        |         |
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.2 Assess whether the assumptions of a linear model are adequately satisfied.
+
+Regardless of what you find, do not do a transformation for the rest of the questions.
+
+```{r}
+
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.3 Estimate the differences between all pairs of pasture covers. Include appropriate units based on your choice of transformation (or no transformation)
+
+```{r}
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.4 Is there any evidence of an interaction between Field and Species cover? ie. do differences among covers change across the fields?
+
+Is the interaction replicated?
+If not, you can't answer this question with an ANOVA, but you can tentatively assess with an interaction plot.
+Describe whether it looks like there are large interactions present.
+
+```{r}
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.5 Did the researcher gain information by utilizing a RCBD relative to a CRD where the sections of all fields were randomized together?
+
+```{r}
+```
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.6 Instead of randomizing all 5 plots on the 4 fields together, speculate on the efficiency had she used only one field.
+
+In this case, to maintain the same replication, she would divide it into 20 smaller plots, and use only 2 birds per plot (instead of 10).
+Speculate on how the MSE/$$s^2$$ would compare to the original RCBD, or the CRD over the four fields.
+**Is there any advantage to spreading the experiment over 4 fields** Is there any disadvantage?
+
+> ENTER YOUR RESPONSE HERE
+
+### 1.7 Add 1 $\mu g/g$ to each value in Field F4. Does this produce any effect on the SS_Species, MS_Species, or F-value? Explain why or why not in one sentence.
+
+In this case (with Field F4 being much more productive), did the importance of Blocking increase or decrease?
+
+The following code makes a modified dataset with the increase of 1 in the Beta values for Field F4
+
+```{r}
+data_2_modified = data_1
+data_2_modified$Beta[data_2_modified$Field == 'F4'] = data_2_modified$Beta[data_2_modified$Field == 'F4'] + 1
+```
+
+> ENTER YOUR RESPONSE HERE
