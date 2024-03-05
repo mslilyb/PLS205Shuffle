@@ -54,30 +54,40 @@ str(data_1)
 
 | Structure | Variable      | Type        | \# levels | Blocks | EU      |
 |-----------|---------------|-------------|-----------|--------|---------|
-| Treatment | Species       | Categorical | 5         | Block  | Section |
-| Design    | Block         | Categorical | 4         |        |         |
-|           | Species:Block | Categorical | 20        |        |         |
+| Treatment | Species       | Categorical | 5         | Field  | Section |
+| Design    | Field         | Categorical | 4         |        |         |
+|           | Species:Field | Categorical | 20        |        |         |
 |           | Section       | Categorical | 20        |        |         |
 | Response  | Beta          | Numerical   | 20        |        |         |
 
-> ENTER YOUR RESPONSE HERE
+> So this is just an RCBD experiment, with a single treatment and response variable of interest with no moderators.
+> Each field (block) is a replicate of the other, receiving all 5 species, and each section in the field is the experimental unit, receiving one species each.
 
 ### 1.2 Assess whether the assumptions of a linear model are adequately satisfied.
 
 Regardless of what you find, do not do a transformation for the rest of the questions.
 
 ```{r}
-
+modelled = lm(Beta ~ Species + Field, data = data_1)
+pls205_diagnostics(modelled)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> While normality looks fine, our variance is all over the place.
+> This is not satisfying our assumptions, but different variances between blocks/fields is fine, really, since we're not interested in the effect field is playing on our response variable.
 
 ### 1.3 Estimate the differences between all pairs of pasture covers. Include appropriate units based on your choice of transformation (or no transformation)
 
 ```{r}
+#so pairwise, thinking we do emmeans, then contrast etc
+
+modelmeans = emmeans(modelled, specs = 'Species')
+#lets use CLD? there's a lot of comparisons to make
+paired = contrast(modelmeans, method = 'pairwise', name = 'Species_effect_on_beta')
+paired
+print(cld(modelmeans, alpha = 0.05, Letters = letters))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Well, as per the previous question, I'm not transforming the data at all (since I was told not to), so the average differences are in units of micrograms of beta-carotene per gram of egg.
 
 ### 1.4 Is there any evidence of an interaction between Field and Species cover? ie. do differences among covers change across the fields?
 
@@ -86,9 +96,11 @@ If not, you can't answer this question with an ANOVA, but you can tentatively as
 Describe whether it looks like there are large interactions present.
 
 ```{r}
+ggplot(data_1, aes(x = Field, y = Beta)) + geom_boxplot()
 ```
 
-> ENTER YOUR RESPONSE HERE
+> It definitely looks like there's some large interactions, specifically since the Beta responses for F2 and F4 are markedly higher than in F1 and F3.
+> I'd be tempted to say that there's replications between those pairs, i.e. f1 and f3 are replicates
 
 ### 1.5 Did the researcher gain information by utilizing a RCBD relative to a CRD where the sections of all fields were randomized together?
 
