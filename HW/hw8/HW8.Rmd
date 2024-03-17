@@ -1,0 +1,145 @@
+---
+title: "HW 8"
+output: 
+ html_notebook:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(ggplot2)
+library(PLS205)
+library(multcomp)
+```
+
+A split-plot experiment for studying the effect of temperature on corrosion of steel bars treated with four coatings (C1, C2, C3, C4).
+They used three furnace temperatures (360C, 370C, 380C).
+It takes considerable time to reset the furnace and reach a new equilibrium temperature.
+Therefore, each the furnace was set twice to each temperature (in a randomized order), and then while it was at the set temperature, four bars, one with each coating, were positioned in the furnace at randomized locations and heated.
+Each bar was then tested individually for corrosion resistance.
+
+Data from the experiment are provided here:
+
+```{r}
+corrosion = read.csv('corrosion.csv',stringsAsFactors = T)
+corrosion$Bar = as.factor(corrosion$Bar)
+corrosion$Trial = as.factor(corrosion$Trial)
+str(corrosion)
+```
+
+## 1)
+
+**Create the design table for this experiment**
+
+**Correct any of the variables in the data.frame to correspond to the design table**
+
+**Use `Temp` as the focal treatment.**
+
+| Structure | Variable                       | Type        | #levels | Block | EU    |
+|------------|------------|------------|------------|------------|------------|
+| Focal     | Temp                           | Categorical | 3       | Coat  | Trial |
+| Moderator | Coat                           | Categorical | 4       | None  | Bar   |
+| Combo     | Temp:Coat                      | Categorical | 12      | Trial | Bar   |
+| Design    | go look at class 17 and 18 pdf |             |         |       |       |
+|           |                                |             |         |       |       |
+|           |                                |             |         |       |       |
+|           |                                |             |         |       |       |
+| Response  |                                |             |         |       |       |
+
+```{r}
+```
+
+> [9 points]
+
+> ENTER YOUR RESPONSE HERE
+
+## 2)
+
+**Write a linear model for these data**
+
+```{r}
+
+
+```
+
+> [5 points]
+
+> ENTER YOUR RESPONSE HERE
+
+## 3)
+
+**Run appropriate model diagnostics**
+
+**Be sure to do diagnostics on all EU. Do you see any issues? *Do not do any transformation in either case***
+
+```{r}
+
+
+```
+
+> [6 points]
+
+> ENTER YOUR RESPONSE HERE
+
+## 4)
+
+**How strong is the evidence that the Temperature has any effect on corrosion?**
+
+```{r}
+
+
+```
+
+> [6 points]
+>
+> ENTER YOUR RESPONSE HERE
+
+## 5)
+
+**Can you conclude that the coating modifies the effect of temperature?**
+
+**What contrast among Coatings appears to change the most among temperatures? Include a figure demonstrating your results**
+
+```{r}
+
+
+```
+
+> [6 points]
+
+> ENTER YOUR RESPONSE HERE
+
+## 6)
+
+**Are the estimated standard errors of the specific effects of temperature larger or smaller than the interaction effects (ie the effects of coating on temperature effects)? Is this unusual for a factorial? Why?**
+
+> [6 points]
+
+> ENTER YOUR RESPONSE HERE
+
+## 7)
+
+**Speculate on whether the experiment would have been more or less precise if it had been run as a completely randomized design instead of a split-plot.**
+
+**In this case, only a single bar would have been heated in an oven at a time. How much longer would the experiment have taken?**
+
+> [6 points]
+
+> ENTER YOUR RESPONSE HERE
+
+## 8)
+
+**Could you report the main effect of `Coat`** **and/or `Temp` in this design? Why or why not?**
+
+**You do not need to do this analysis, but explain how it could be done, or why it could not.**
+
+> [ 6 points ]
+
+> ENTER YOUR RESPONSE HERE

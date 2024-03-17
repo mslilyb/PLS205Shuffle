@@ -1,12 +1,14 @@
 ---
 title: "HW 8"
-output: 
- html_notebook:
+output:
+  pdf_document:
+    toc: true
+  html_notebook:
     toc: true
     toc_float: true
     number_sections: true
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: sentence
 ---
 
@@ -38,6 +40,8 @@ Each field was divided into 6 blocks.
 
 ```{r}
 oats = read.csv('Oats_trials.csv')
+oats$plot = as.factor(oats$plot)
+
 str(oats)
 ```
 
@@ -49,9 +53,13 @@ How many unique blocks are there?
 If necessary, re-name the blocks so that they are appropriately nested in the fields.
 
 ```{r}
+oats$unique_blocks <- paste(oats$rep, oats$block)
+str(interaction(oats$unique_blocks, oats$gen, drop = TRUE))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> There's 18 unique blocks, 6 for each field, since no two blocks in a field will share the same set of genotypes.
+> I'll rename them as Rep Block.
+> Probably a better way to do this but without knowing an `f` string equivalent in R that's what I've got.
 
 ## 1.2 Characterize the experimental design
 
@@ -59,28 +67,37 @@ Start by making a model table:
 
 **Design**: Try to identify the design, but not required.
 
-| Structure | Variable | Type | \# levels | Block | EU  |
-|-----------|----------|------|-----------|-------|-----|
-| Treatment |          |      |           |       |     |
-| Design    |          |      |           |       |     |
-| Response  |          |      |           |       |     |
+| Structure | Variable  | Type        | \# levels | Block     | EU   |
+|-----------|-----------|-------------|-----------|-----------|------|
+| Treatment | gen       | Categorical | 24        | block:rep | plot |
+| Design    | block     | Categorical | 6         |           |      |
+|           | rep       | Categorical | 3         |           |      |
+|           | rep:block | Categorical | 18        |           |      |
+|           | Plot      | Categorical | 72        |           |      |
+| Response  | yield     | Numeric     | 72        |           |      |
 
 ## 1.3 This is an incomplete block design. Fill in the following:
 
 | parameter             | value |
 |-----------------------|-------|
-| \# treatments (t)     |       |
-| \# blocks (b)         |       |
-| \# reps per trt (n_i) |       |
-| \# trts per block (k) |       |
+| \# treatments (t)     | 24    |
+| \# blocks (b)         | 18    |
+| \# reps per trt (n_i) | 3     |
+| \# trts per block (k) | 4     |
 
 Could this design be balanced?
 What is lambda (the average times each pair of treatments occur in the same block)?
 
 ```{r}
+n_i = 3
+b = 18
+t = 24
+k = 4
+lam = n_i * (k - 1) / (t - 1)
+lam
 ```
 
-> ENTER YOUR RESPONSE HERE
+> This doesn't look balanced, with a lambda of below 1, meaning that some pairs occur and some do not.
 
 ## 1.4 Make an incidence matrix for the design.
 
@@ -89,7 +106,9 @@ Is the design balanced?
 
 ```{r}
 options(width=80)
-
+inmat = is_crossed(unique_blocks~gen, oats)
+crossprod(inmat)
+print("No, the design is not balanced.")
 ```
 
 ## 1.5 Is the design resolvable?
@@ -102,10 +121,11 @@ Identify blocks that can be resolved into a complete block.
 
 ```{r}
 options(width=80)
-
+is_crossed(rep~gen, oats, only_full_crossed = TRUE)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Each `rep` can be resolved into a complete block.
+> Each contains all 24 of the `gen` treatments, and is a complete replicate of the experiment.
 
 ## 1.6 Fit a linear model to the yield data.
 
@@ -115,22 +135,31 @@ Use an ANOVA to assess whether there is strong evidence for differences among th
 To avoid this, make a new term `unique_blocks` with a separate ID for block in each rep. Alternatively, declare blocks random (but be careful about nesting!).
 
 ```{r}
+oatmod = lm(yield ~ unique_blocks + gen, data = oats)
+print(anova(oatmod))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> There certainly seems to be strong evidence for difference among genotypes, when using `unique_blocks` as my blocks.
 
 ## 1.7 Make a Compact Letter Display to compare the genotypes.
 
 Identify the best-preforming genotype, and any others that can't be statistically distinguished (alpha = 0.1) from the one that performed best.
 
 ```{r}
+oatmeans = emmeans(oatmod, specs = 'gen')
+randblock = lmer(yield ~ gen + rep + (1|block), data = oats)
+randmeans = emmeans(randblock, specs = 'gen')
+print(cld(oatmeans, alpha = 0.1, Letters = letters))
+print(cld(randmeans, alpha = 0.1, Letters = letters))
 ```
 
-> ENTER YOUR RESPONSE HERE
+> The best performing genotype is `G01`, though it cannot be shown to be different for nearly every other genotype save `G03` and `G09`.
 
 ## 1.8. In the above analysis, if you declare the blocks to be random, you should find that G02 is declared different from G09 but G04 is not. However the estimated value of G02 is closer to G09 than G04 is.
 
 Explain this observation.
 Why can we distinguish G02 and G09, but not G04 and G09 at alpha = 0.1?
 
-> ENTER YOUR RESPONSE HERE
+> Well, if blocks are random, that means that the behavior/effect of the blocks on the yield are not necessarily consistent, meaning that you could expect some blocks to simply have lower yields irrespective to genotype.
+> If `G02` and `G09` are present in the *same* block, then its easier to determine if they are different, since any randomness in yield derived from block would wash out (and they are!).
+> Conversely, `G04` and `G09` do not appear in a block together; it is more difficult to determine that they are different, even if the absolute numbers would suggest otherwise.
