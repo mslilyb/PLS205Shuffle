@@ -10,11 +10,7 @@ editor_options:
     wrap: sentence
 ---
 
-Use this R Notebook document to answer the questions and document your work.
-Enter the R code used to answer each question in the corresponding R code chunk.
-Write any textual explanations **outside** of the chunks.
-When we grade, we will *hide* the code and just look at the R output and your written answers.
-Attempt to clean up your code as much as possible so that only the necessary lines remain.
+Use this R Notebook document to answer the questions and document your work. Enter the R code used to answer each question in the corresponding R code chunk. Write any textual explanations **outside** of the chunks. When we grade, we will *hide* the code and just look at the R output and your written answers. Attempt to clean up your code as much as possible so that only the necessary lines remain.
 
 When you are done:
 
@@ -36,11 +32,7 @@ library(PLS205)
 
 ## Question 1
 
-A researcher was interested in examining the effect of pasture species composition on beta-carotene content in eggs of pastured poultry.
-She evenly divided each of four fields into five sections and overseeded each section with one of the following: 1) annual rye (grass); 2) fescue (grass); 3) white clover (legume); 4) vetch (legume); or, 5) clover/fescue mix.
-A separate flock of 10 birds was put out in each section.
-After one-week, eggs from each flock were collected daily and combined for determining beta-carotene content of the yolks.
-These values in $\mu_g/g$ were averaged after 10 days.
+A researcher was interested in examining the effect of pasture species composition on beta-carotene content in eggs of pastured poultry. She evenly divided each of four fields into five sections and overseeded each section with one of the following: 1) annual rye (grass); 2) fescue (grass); 3) white clover (legume); 4) vetch (legume); or, 5) clover/fescue mix. A separate flock of 10 birds was put out in each section. After one-week, eggs from each flock were collected daily and combined for determining beta-carotene content of the yolks. These values in $\mu_g/g$ were averaged after 10 days.
 
 ```{r echo=FALSE}
 data_1 = read.csv('egg_carotene.csv')
@@ -60,8 +52,7 @@ str(data_1)
 |           | Section       | Categorical | 20        |        |         |
 | Response  | Beta          | Numerical   | 20        |        |         |
 
-> So this is just an RCBD experiment, with a single treatment and response variable of interest with no moderators.
-> Each field (block) is a replicate of the other, receiving all 5 species, and each section in the field is the experimental unit, receiving one species each.
+> So this is just an RCBD experiment, with a single treatment and response variable of interest with no moderators. Each field (block) is a replicate (sort of, they do have all the same treatments) of the other, receiving all 5 species, and each section in the field is the experimental unit, receiving one species each.
 
 ### 1.2 Assess whether the assumptions of a linear model are adequately satisfied.
 
@@ -72,8 +63,7 @@ modelled = lm(Beta ~ Species + Field, data = data_1)
 pls205_diagnostics(modelled)
 ```
 
-> While normality looks fine, our variance is all over the place.
-> This is not satisfying our assumptions, but different variances between blocks/fields is fine, really, since we're not interested in the effect field is playing on our response variable.
+> While normality looks fine, our variance is all over the place. This is not satisfying our assumptions, but different variances between blocks/fields is fine, really, since we're not interested in the effect field is playing on our response variable.
 
 ### 1.3 Estimate the differences between all pairs of pasture covers. Include appropriate units based on your choice of transformation (or no transformation)
 
@@ -91,31 +81,31 @@ print(cld(modelmeans, alpha = 0.05, Letters = letters))
 
 ### 1.4 Is there any evidence of an interaction between Field and Species cover? ie. do differences among covers change across the fields?
 
-Is the interaction replicated?
-If not, you can't answer this question with an ANOVA, but you can tentatively assess with an interaction plot.
-Describe whether it looks like there are large interactions present.
+Is the interaction replicated? If not, you can't answer this question with an ANOVA, but you can tentatively assess with an interaction plot. Describe whether it looks like there are large interactions present.
 
 ```{r}
 ggplot(data_1, aes(x = Field, y = Beta)) + geom_boxplot()
+ggplot(data_1, aes(x = Species, y = Beta)) + geom_point(aes(color = Species)) + facet_wrap( ~ Field, labeller = label_both)
 ```
 
-> It definitely looks like there's some large interactions, specifically since the Beta responses for F2 and F4 are markedly higher than in F1 and F3.
-> I'd be tempted to say that there's replications between those pairs, i.e. f1 and f3 are replicates
+> There's no real replication going on here; each `Field` is only represented once. Tentatively, there does seem to be some interaction between Field and Species, since certain fields, like F2 and F4, have a much wider range between the covers, and F1 and F3's covers are relatively close.
 
 ### 1.5 Did the researcher gain information by utilizing a RCBD relative to a CRD where the sections of all fields were randomized together?
 
 ```{r}
+#Lets try a no-block model!
+noblockmod = lm(Beta ~ Species, data = data_1)
+
+anova(noblockmod)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Yes! Accounting for the differences between fields means we do see strong evidence of at least a few species specific effects (specifically Species 1 and 2 to Species 5), that do not show up when ignoring the fields (i.e., we fail to reject the null hypothesis).
 
 ### 1.6 Instead of randomizing all 5 plots on the 4 fields together, speculate on the efficiency had she used only one field.
 
-In this case, to maintain the same replication, she would divide it into 20 smaller plots, and use only 2 birds per plot (instead of 10).
-Speculate on how the MSE/$$s^2$$ would compare to the original RCBD, or the CRD over the four fields.
-**Is there any advantage to spreading the experiment over 4 fields** Is there any disadvantage?
+In this case, to maintain the same replication, she would divide it into 20 smaller plots, and use only 2 birds per plot (instead of 10). Speculate on how the MSE/$$s^2$$ would compare to the original RCBD, or the CRD over the four fields. **Is there any advantage to spreading the experiment over 4 fields** Is there any disadvantage?
 
-> ENTER YOUR RESPONSE HERE
+> Our MSE for this new smaller plot design would be the same for the CRD, since both would have the same number of independent EUs. Our RCBD has less df than our CRD and therefore also the single plot design, so really the main difference for the smaller design is the sample size and field effects. Sample size of 2 does make our error bigger and reduce the confidence we have in our estimates, so spreading out over 4 fields for either CRD or RCBD does help reduce error in that way, but we're fairly confident that the fields do have effect on the differences between covers, which is the downside to spreading out over 4 fields.
 
 ### 1.7 Add 1 $\mu g/g$ to each value in Field F4. Does this produce any effect on the SS_Species, MS_Species, or F-value? Explain why or why not in one sentence.
 
@@ -126,6 +116,15 @@ The following code makes a modified dataset with the increase of 1 in the Beta v
 ```{r}
 data_2_modified = data_1
 data_2_modified$Beta[data_2_modified$Field == 'F4'] = data_2_modified$Beta[data_2_modified$Field == 'F4'] + 1
+
+print("Original Model:")
+anova(modelled)
+newblock = lm(Beta ~ Species + Field, data = data_2_modified)
+print("F4 Productive Model:")
+anova(newblock)
+newnoblock = lm(Beta ~ Species, data = data_2_modified)
+print("F4 boosted, no blocking:")
+anova(newnoblock)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> While it does not effect the SS_Species or MS_Species, it dramatically increases the F-value for `Field`, which does make sense since the number of treatments did not change, but the values increasing means the squared deviations of F4 from the mean increased accordingly. I would say the importance of blocking increased as well, because without it, there is a dramatic change in all the parts of the ANOVA table (especially the p-value!), which also tracks, since F4 now stands out all the more from the other fields.
