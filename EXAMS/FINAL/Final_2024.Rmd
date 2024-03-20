@@ -1,12 +1,14 @@
 ---
 title: "Final exam"
-output: 
- html_notebook:
+output:
+  pdf_document:
+    toc: true
+  html_notebook:
     toc: true
     toc_float: true
     number_sections: false
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -192,6 +194,14 @@ anova(no_blocks)
 > (0.0005535 vs 0.0005977). Without adding `Field` as a treatment, the
 > replication hasn't improved our precision nor the strength of our
 > interpretation.
+>
+> However, were we to consider `Field` as a treatment (in addition to a
+> block), we could look make statements about whether it appears that
+> our `Cover` treatment effect is affected by `Field`. Again, when
+> pretending `Field` isn't a block, there isn't a dramatic shift in the
+> F-value or p-value of `Cover` in the anova table. While the blocks
+> ultimately would not have done anything, we would be more confident in
+> generalizing our results to other, similar fields.
 
 # Question 2
 
@@ -229,11 +239,31 @@ Block that you specify.
 **NOTE:** Right click on a row to insert new rows if needed. You can
 also make the table in Excel and paste your table directly here.
 
-| Structure | Variable | Type | N. levels | Block | EU  |
-|-----------|----------|------|-----------|-------|-----|
-|           |          |      |           |       |     |
-|           |          |      |           |       |     |
-|           |          |      |           |       |     |
+| Structure | Variable   | Type        | N. levels | Block           | EU    |
+|-----------|------------|-------------|-----------|-----------------|-------|
+| Focal     | Geno       | Categorical | 5         | Phos, Tub       | Plant |
+| Moderator | Phos       | Categorical | 2         |                 | Tub   |
+| Combo     | Geno:Phos  | Categorical | 10        | Tub(Incomplete) | Plant |
+| Design    | Tub        | Categorical | 10        |                 |       |
+|           | Plant:Phos | Categorical | 30        |                 |       |
+|           | Plant      | Categorical | 150       |                 |       |
+| Response  | RootMass   | Numeric     | 150       |                 |       |
+
+> Okay, so with a focal treatment of `Geno`, our EU is Plant, since
+> that's the part of the design that receives only one level of that
+> treatment. `Geno` is blocked both in `Tub`, since each one contains
+> every level of the treatment, as does each level of `Phos` (which is
+> almost uninteresting. Of course the focal treatment is blocked in the
+> moderator). Our EU for `Phos` is `Tub`, for a similar reason as
+> before. Each `Tub` receives only one level of `Phos`. There is no
+> block for `Phos`. Our combo variable, `Geno:Phos`, has an EU of plant,
+> once again, since that is the only part of the design that receives
+> only one level of the treatment. It is blocked incompletely by `Tub`.
+> While each `Tub` does not receive the full suite of treatments, pairs
+> of hi-P and low-P treated `Tub`s represent the full range.
+>
+> `Phos:Tub` and `Tub` are aliased, and since `Tub` is an EU, I'm going
+> to keep it over the other.
 
 ## 2.2 Write an appropriate linear model for the analysis [4 points]
 
@@ -241,10 +271,13 @@ Be sure to fix any variables in the data table. Be careful about nested
 terms.
 
 ```{r}
+sorghum$Tub = as.factor(sorghum$Tub)
+sorghum$Plant = as.factor(sorghum$Plant)
+sorgmod = lmer(RootMass ~ (1|Tub) + (1|Plant:Phos) + Geno + Phos + Geno:Phos, data = sorghum)
 
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Using both `Tub` and `Plant:Phos` as my random terms in the model.
 
 ## 2.3 Evaluate whether any of the mutants alter root growth in either Phosphorous treatment relative to Tx430. Use $\alpha = 0.05$. Do not use an ANOVA. [6 points]
 
@@ -252,10 +285,19 @@ Show the effects table used to answer the question and reference the
 specific values you use in your text.
 
 ```{r}
-
+sormeans = emmeans(sorgmod, spec = 'Geno', by = 'Phos')
+sorcomp = contrast(sormeans, method = 'trt.vs.ctrl', ref = 'Tx430', name = 'Gen_effect')
+sorsumm = summary(sorcomp, infer = T, level = 1-0.05/2, as.df = TRUE)
+sorsumm$p.value = pmin(1, sorsumm$p.value * 2)
+print(sorsumm)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Yes, we can see that there are at least a few mutants that later root
+> growth relative to Tx430 (when using a Bonferroni multiple comparison
+> correction at 2, since that is how many levels our moderator has),
+> MutA and MutC at alpha = 0.05. The p-value for both at low-P is below
+> 0.0001, and at the hi-P MutC also appears to alter root growth with a
+> p-value == 0.0001.
 
 ## 2.4 Evaluate which mutant effects on root growth changed in low Phosphorous vs High Phosphorous conditions. Use $\alpha = 0.05$. [6 points]
 
@@ -263,10 +305,18 @@ Show the effects table used to answer the question and reference the
 specific values you use in your text.
 
 ```{r}
-
+#now comparison
+regroupsor = update(sorcomp, by = 'Gen_effect')
+sorinter = contrast(regroupsor, method = 'pairwise')
+sorintersumm = summary(sorinter, infer = T, level = 1-0.05/4, as.df = TRUE)
+sorintersumm$p.value = pmin(1, sorintersumm$p.value * 4)
+print(sorintersumm)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Again using a Bonferroni correction (This time at 4, since we have 4
+> comparisons across each specific effect), we can see that the only
+> mutant effects on root growth that really changed was MutA, with a
+> p.value of below 0.001.
 
 ## 2.5 Discuss what the researchers learned about the role of SbPSTOL1 on root growth. [5 points]
 
@@ -286,12 +336,46 @@ Address the following:
 
 Note: A figure might help you explain your answer to #1.
 
-> ENTER YOUR RESPONSE HERE
-
-```{r}
-# OPTIONAL CODE BLOCK
-```
+> 1.  The researchers found both MutA and MutC. However, MutC's effect
+>     didn't seem to be affected by the levels of Phos, whereas MutA
+>     was. This makes MutA a little more interesting than MutC, since it
+>     is a **conditional knockout**. A knockout can answer questions
+>     about what happens when a gene breaks completely, but conditional
+>     knockouts have more uses beyond that. They can be used to model
+>     effects of scarcity, as a method of establishing a control vs
+>     treatment relationship without having to create two separate
+>     transgenic plant lines, and more. Furthermore, it is likely that
+>     effect on the structure of the protein for knockout of MutA is a
+>     little more subtle than the full knockout of MutC. Even if the
+>     *opposite* is true, this could provide some interesting insights
+>     into the protein structure of SbPSTOL1 and its relationship with
+>     function. (i.e., which domain in the protein has the most effect
+>     on phosphate uptake, etc).
+>
+> <!-- -->
+>
+> 2.  No. Off target effects are off target effects, and can change
+>     depending on what strain you are doing your experiment in. There
+>     is no real replication or manipulation of the, essentially,
+>     `Mutation:PlantLine` combination. These effects, therefore, can
+>     only really be stated with confidence that they occur in the Tx430
+>     line. Each individual strain of sorghum will have its own unique
+>     genetic landscape (it's why they're different strains to begin
+>     with); in order to make the statement that knocking out/down
+>     SbPSTOL1 will affect phosphorous responses in all Sorghum
+>     varieties, they would need to repeat this experiment in different
+>     strains, then compare the specific effects of a SbPSTOL1 k/o on
+>     each strain.
 
 ## 2.6 Speculate on why the researcher allocated more plants to the Tx430 genotype in each tub than to each of the mutants. Was this a reasonable choice to make? [5 points]
 
-> ENTER YOUR RESPONSE HERE
+> I have two guesses here. The first is that creating transgenic plant
+> lines is not a simple task. It is time-consuming and potentially
+> expensive and error prone. The second is that more control treated
+> plants means your estimation of the baseline interaction between
+> `Phos` and `Geno` is more confident; i.e. you have a better idea of
+> the baseline effect that switching phosphorous concentrations does.
+> This in turn means we can make more confident predictions about the
+> effect of different Mutants with less total plants assigned to those
+> treatments. I think this was reasonable, assuming they were limited in
+> space, time, and funds.
