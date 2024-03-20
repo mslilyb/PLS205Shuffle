@@ -72,23 +72,31 @@ Give a justification for each EU and Block that you specify.
 **NOTE:** Right click on a row to insert new rows if needed. You can
 also make the table in Excel and paste your table directly here.
 
-| Structure | Variable | Type | \# levels | Block | EU  |
-|-----------|----------|------|-----------|-------|-----|
-|           |          |      |           |       |     |
-|           |          |      |           |       |     |
-|           |          |      |           |       |     |
+| Structure | Variable    | Type        | \# levels | Block | EU      |
+|-----------|-------------|-------------|-----------|-------|---------|
+| Treatment | Cover       | Categorical | 3         | Strip | Section |
+| Design    | Strip       | Categorical | 5         |       |         |
+|           | Cover:Strip | Categorical | 15        |       |         |
+|           | Section     | Categorical | 15        |       |         |
+| Response  | yield       | Numeric     | 15        |       |         |
 
-> ENTER YOUR RESPONSE HERE
+> My block is `Strip`, since it has one section for each of my three
+> treatment levels, and they are effectively replicates. The EU is
+> `Section`, since each one only receives one level of treatment (as
+> opposed to the three treatments each `Strip` receives).
 
 ## 1.2 Write an appropriate linear model for the analysis [4 points]
 
 Be sure to fix any variables in the data table.
 
 ```{r}
-
+almonds$Section = as.factor(almonds$Section)
+almodel = lm(yield ~ Cover + Strip, data = almonds)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Needed to switch `Section` to something not-numeric. Other than that,
+> used `lm`, since there isn't actually replication of each individual
+> `Cover:Strip`.
 
 ## 1.3 Can you conclude that any of the ground covers affect yield? Which covers appear best? Worst? [6 points]
 
@@ -96,10 +104,19 @@ Use alpha = 0.05. Show the R output used to answer the question and
 reference the specific values you use in your text.
 
 ```{r}
+anova(almodel)
 
+almeans = emmeans(almodel, spec = 'Cover')
+covereffects = contrast(almeans, method = 'pairwise')
+coversumm = summary(covereffects, infer = T, alpha = 0.05)
+print(almeans)
+print(coversumm)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Yes, judging by an anova, we can confidently say that at least one of
+> the covers affects yield (p-value 9.23e-06). The best performing
+> covers appear to be either A or B, and the worst is C, though A and B
+> are not really distinguishable from each other.
 
 # Question 1 - part 2
 
@@ -116,23 +133,31 @@ str(almonds_3_Field)
 
 Give a justification for each EU and Block that you specify.
 
-| Structure | Variable | Type | \# levels | Block | EU  |
-|-----------|----------|------|-----------|-------|-----|
-|           |          |      |           |       |     |
-|           |          |      |           |       |     |
-|           |          |      |           |       |     |
+| Structure | Variable          | Type        | \# levels | Block        | EU      |
+|-----------|-------------------|-------------|-----------|--------------|---------|
+| Treatment | Cover             | Categorical | 3         | Strip, Field | Section |
+| Design    | Strip             | Categorical | 5         |              |         |
+|           | Field             | Categorical | 3         |              |         |
+|           | Strip:Field       | Categorical | 15        |              |         |
+|           | Cover:Strip:Field | Categorical | 45        |              |         |
+|           | Section           | Categorical | 45        |              |         |
+| Response  | yield             | Numeric     | 45        |              |         |
 
-> ENTER YOUR RESPONSE HERE
+> Cover is blocked both in `Strip` and `Field`, both receiving the full
+> set of Treatments. The EU is still `Section`, since it is still the
+> only part of the design that receives a single treatment.
 
 ## 1.5 Write an appropriate linear model for the analysis [4 points]
 
 Be sure to fix any variables in the data table.
 
 ```{r}
+almonds_3_Field$Section = as.factor(almonds_3_Field$Section)
+threemod = lmer(yield ~ Field + Cover + (1|Strip), data = almonds_3_Field)
 
 ```
 
-> ENTER YOUR RESPONSE HERE
+> Using `lmer`, since `Strip` should be a random variable.
 
 ## 1.6 Estimate the effects of Cover again, and compare the results of this larger experiment to the first experiment. [6 points]
 
@@ -143,10 +168,30 @@ new experiment? Show the effects tables used to answer the question and
 reference the specific values you use in your text.
 
 ```{r}
-
+anova(threemod, ddf = 'K')
+threemeans = emmeans(threemod, spec='Cover')
+threeeffects = contrast(threemeans, method = 'pairwise')
+threesumm = summary(threeeffects, infer = T, level=1-0.05/3)
+threesumm$p.value = pmin(1, threesumm$p.value * 3)
+print(threemeans)
+print(threesumm)
+no_blocks = lm(yield ~ Cover + Strip, data = almonds_3_Field)
+anova(no_blocks)
 ```
 
-> ENTER YOUR RESPONSE HERE
+> My conclusions have not changed, but the context has. The SE of our
+> interaction effects is 4.81 as opposed to 2.15 in the previous
+> experiment, which leads to bigger CIs, and less confidence in the
+> average effect. Truthfully, it's not making much sense to add the two
+> extra fields unless you were explicitly interested to see if they
+> behaved differently (which doesn't seem to be the intention).
+> Theoretically, adding the blocks can indicate if `Field` is
+> interacting with `Cover` and changing treatment effects, but even with
+> pretending as if `Field`s don't exist and we didn't block, the p-value
+> of `Cover` in the anova is nearly the same as with the block structure
+> (0.0005535 vs 0.0005977). Without adding `Field` as a treatment, the
+> replication hasn't improved our precision nor the strength of our
+> interpretation.
 
 # Question 2
 
